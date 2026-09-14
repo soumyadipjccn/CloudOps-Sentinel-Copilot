@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CloudOps Sentinel Copilot | Self-RAG Operations AI</title>
+  
+  <!-- Inter & JetBrains Mono Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Markdown Renderer (Marked) & Syntax Highlighting -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+  
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <!-- Ambient Glow Orbs -->
+  <div class="bg-glow-orb-1"></div>
+  <div class="bg-glow-orb-2"></div>
+
+  <div class="app-container">
+    <!-- ==========================================
+         Left Control Plane: Ingestion & Model Specs
+         ========================================== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div class="brand-info">
+          <h1>Sentinel Copilot</h1>
+          <div class="brand-badge">Self-RAG Verified</div>
+        </div>
+      </div>
+
+      <div class="sidebar-scrollable">
+        <!-- New Session Action -->
+        <button class="btn-new-chat" id="btn-new-chat">
+          <i class="fa-solid fa-plus"></i> New Incident Session
+        </button>
+
+        <!-- System Architecture Telemetry -->
+        <div>
+          <div class="sidebar-section-title">Telemetry & Engine Specs</div>
+          <div class="telemetry-card">
+            <div class="telemetry-row">
+              <span class="telemetry-label"><i class="fa-solid fa-microchip"></i> LLM Engine</span>
+              <span class="telemetry-val highlight" id="spec-llm" title="{{ llm_model }}">{{ llm_model }}</span>
+            </div>
+            <div class="telemetry-row">
+              <span class="telemetry-label"><i class="fa-solid fa-vector-square"></i> Embeddings</span>
+              <span class="telemetry-val" id="spec-embedding" title="{{ embedding_model }}">{{ embedding_model }}</span>
+            </div>
+            <div class="telemetry-row">
+              <span class="telemetry-label"><i class="fa-solid fa-arrows-split-up-and-left"></i> Dim</span>
+              <span class="telemetry-val" id="spec-dim">{{ embedding_dimension }}d</span>
+            </div>
+            <div class="telemetry-row">
+              <span class="telemetry-label"><i class="fa-solid fa-database"></i> Vector Index</span>
+              <span class="telemetry-val" id="spec-index" title="{{ pinecone_index }}">{{ pinecone_index }}</span>
+            </div>
+            <div class="telemetry-row">
+              <span class="telemetry-label"><i class="fa-solid fa-folder-tree"></i> Namespace</span>
+              <span class="telemetry-val" id="spec-namespace">{{ pinecone_namespace }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Knowledge Base Ingestion Area -->
+        <div>
+          <div class="sidebar-section-title">Knowledge Base Ingestion</div>
+          <div class="dropzone" id="dropzone">
+            <input type="file" id="file-input" class="file-input" accept=".pdf,.txt,.md,.docx">
+            <div class="dropzone-icon">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+            </div>
+            <p><strong>Drag & Drop</strong> Runbooks</p>
+            <p>or <span>Browse files</span> (PDF, MD, DOCX, TXT)</p>
+          </div>
+          <div class="upload-status" id="upload-status"></div>
+        </div>
+
+        <!-- Audit & Logs Button -->
+        <div>
+          <button class="btn-outline" id="btn-open-audit">
+            <i class="fa-solid fa-clock-rotate-left"></i> View RAG Verification Audit
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ==========================================
+         Right Main Screen: Chat & Self-RAG Evidence
+         ========================================== -->
+    <main class="main-stage">
+      <!-- Top Navigation -->
+      <header class="top-navbar">
+        <div class="navbar-left">
+          <div class="pipeline-pill">
+            <span class="pipeline-step-dot"></span>
+            <span>Self-RAG Guardrails Active</span>
+          </div>
+        </div>
+        <div class="nav-actions">
+          <span style="font-size: 12px; color: var(--text-dim); font-family: var(--font-mono);" id="session-id-display"></span>
+          <button class="audit-btn-toggle" id="btn-export-chat" title="Export Thread Transcript">
+            <i class="fa-solid fa-file-arrow-down"></i> Export
+          </button>
+        </div>
+      </header>
+
+      <!-- Message History Viewport -->
+      <div class="chat-viewport" id="chat-viewport">
+        <!-- Dynamic Welcome / Empty State -->
+        <div class="welcome-hero" id="welcome-hero">
+          <div class="hero-badge">
+            <i class="fa-solid fa-shield-check"></i> Enterprise Incident & CloudOps Copilot
+          </div>
+          <h2>Self-Corrective Cloud Intelligence</h2>
+          <p>
+            Trained to query your operational runbooks, verify evidence for hallucination, 
+            and dynamically fallback to curated web telemetry when local runbooks lack answers.
+          </p>
+
+          <div class="sample-prompts">
+            <div class="sample-prompt-card" data-prompt="Kubernetes Pods are stuck in CrashLoopBackOff with OOMKilled code 137. How do I troubleshoot?">
+              <div class="tag"><i class="fa-solid fa-server"></i> Kubernetes</div>
+              <div class="text">Troubleshoot Pods stuck in CrashLoopBackOff with OOMKilled exit code 137</div>
+            </div>
+            <div class="sample-prompt-card" data-prompt="AWS RDS PostgreSQL instance CPU utilization spiked to 100%. What is the incident mitigation runbook?">
+              <div class="tag"><i class="fa-solid fa-database"></i> Database</div>
+              <div class="text">Mitigate RDS PostgreSQL CPU spike to 100% and identify slow queries</div>
+            </div>
+            <div class="sample-prompt-card" data-prompt="How do I configure BGE-M3 embeddings with NVIDIA NIM models in this copilot?">
+              <div class="tag"><i class="fa-solid fa-bolt"></i> Architecture</div>
+              <div class="text">Explain the NVIDIA NIM and BGE-M3 pipeline configuration</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Composer Box -->
+      <div class="chat-composer-area">
+        <form class="composer-form" id="chat-form">
+          <div class="composer-box">
+            <textarea 
+              class="chat-input" 
+              id="chat-input" 
+              placeholder="Ask an incident triage question or describe a production issue..." 
+              rows="1"
+            ></textarea>
+            <button type="submit" class="btn-send" id="btn-send" title="Send Message">
+              <i class="fa-solid fa-arrow-up"></i>
+            </button>
+          </div>
+          <div class="composer-footer">
+            <span>Powered by NVIDIA NIM & BGE-M3 (1024d) • LangGraph Self-RAG Verified</span>
+            <span>Shift + Enter for newline</span>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <!-- ==========================================
+       Audit Trail Modal Dialog
+       ========================================== -->
+  <div class="modal-overlay" id="audit-modal-overlay">
+    <div class="audit-modal">
+      <div class="audit-header">
+        <h3><i class="fa-solid fa-clock-rotate-left"></i> Self-RAG Audit & Decision Trail</h3>
+        <button class="btn-close-modal" id="btn-close-audit">&times;</button>
+      </div>
+      <div class="audit-body">
+        <table class="audit-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Question</th>
+              <th>Route</th>
+              <th>Support</th>
+              <th>Web Search</th>
+              <th>Trace Steps</th>
+            </tr>
+          </thead>
+          <tbody id="audit-table-body">
+            <tr>
+              <td colspan="6" style="text-align: center; color: var(--text-dim);">Loading audits...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Application Scripts -->
+  <script src="/static/app.js"></script>
+</body>
+</html>
