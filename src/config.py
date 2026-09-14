@@ -43,6 +43,10 @@ class Settings(BaseModel):
         p = Path(self.database_path)
         return p if p.is_absolute() else ROOT / p
 
+    @property
+    def database_files(self) -> Path:
+        return self.database_file
+
 
 
 @lru_cache

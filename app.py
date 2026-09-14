@@ -40,9 +40,9 @@ def on_startup():
 def index(request: Request):
     settings = get_settings()
     return templates.TemplateResponse(
-        "index.html",
-        {
-            "request": request,
+        request=request,
+        name="index.html",
+        context={
             "llm_model": settings.llm_model,
             "embedding_model": settings.embedding_model,
             "embedding_dimension": settings.embedding_dimension,

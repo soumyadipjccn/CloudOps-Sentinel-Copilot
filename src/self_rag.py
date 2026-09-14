@@ -322,7 +322,7 @@ def _sources(docs: List[Document]):
     for d in docs or []:
         m = d.metadata or {}
         typ = "web" if m.get("source_type") == "web" else "internal"
-        key = (typ, m.get("url") or m.get("source"), m.get("page"))
+        key = (typ, str(m.get("url") or m.get("source") or ""), str(m.get("page") or ""))
         if key in seen:
             continue
         seen.add(key)

@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from src.config import get_settings
 
 def init_db() -> None:
-    path = get_settings().database_files
+    path = get_settings().database_file
     path.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(path) as conn:
         conn.execute("""
@@ -19,12 +19,8 @@ def init_db() -> None:
             usefulness TEXT,
             trace_json TEXT,
             sources_json TEXT
-
-
-
-
-
-""")
+        )
+        """)
     conn.commit()
 
 
