@@ -57,11 +57,12 @@ class QueryRewrite(BaseModel):
 
 def _llm():
     s = get_settings()
-    if not s.openai_api_key:
-        raise RuntimeError("OPENAI_API_KEY is not configured")
+    if not s.llm_api_key:
+        raise RuntimeError("NVIDIA_API_KEY or OPENAI_API_KEY is not configured")
     return ChatOpenAI(
-        api_key=s.openai_api_key,
-        model=s.openai_model,
+        api_key=s.llm_api_key,
+        base_url=s.llm_base_url,
+        model=s.llm_model,
         temperature=0,
     )
 

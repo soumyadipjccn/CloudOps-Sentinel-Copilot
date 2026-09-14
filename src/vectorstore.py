@@ -7,13 +7,23 @@ from src.config import get_settings
 @lru_cache
 def get_embeddings():
     s = get_settings()
-    if not s.openai_api_key:
-        raise RuntimeError("OPENAI_API_KEY is not configured")
-    return OpenAIEmbeddings(
-        api_key=s.openai_api_key,
-        model=s.embedding_model,
-        dimensions=s.embedding_dimension,
-    )
+    if s.embedding_provider.lower() == "nvidia":
+        if not s.embedding_api_key:
+            raise RuntimeError("EMBEDDING_API_KEY / NVIDIA_API_KEY is not configured")
+        return OpenAIEmbeddings(
+            api_key=s.embedding_api_key,
+            base_url=s.embedding_base_url,
+            model=s.embedding_model,
+            check_embedding_ctx_length=False,
+        )
+    else:
+        # Default: local HuggingFace BGE-M3 (no embedding API token required)
+        from langchain_huggingface import HuggingFaceEmbeddings
+        return HuggingFaceEmbeddings(
+            model_name=s.embedding_model,
+            model_kwargs={"device": "cpu"},
+            encode_kwargs={"normalize_embeddings": True},
+        )
 
 
 def get_pinecone_client():

@@ -9,13 +9,21 @@ load_dotenv()
 ROOT = Path(__file__).resolve().parent.parent
 
 class Settings(BaseModel):
-    openai_api_key : str = os.getenv("OPENAI_API_KEY", "")
-    openai_model : str = os.getenv("OPENAI_MODEL", "gpt-5-mini")
-    embedding_model : str = os.getenv("EMBEDDING_MODEL", "text-embedding-3-large")
-    embedding_dimension : int = int(os.getenv("EMBEDDING_DIMENSION", "3072"))
+    # LLM (OpenAI-compatible / NVIDIA NIM / OpenAI)
+    llm_api_key: str = os.getenv("NVIDIA_API_KEY") or os.getenv("OPENAI_API_KEY", "")
+    llm_base_url: str = os.getenv("LLM_BASE_URL", "https://integrate.api.nvidia.com/v1")
+    llm_model: str = os.getenv("LLM_MODEL", "meta/llama-3.3-70b-instruct")
+
+    # Embeddings (BGE-M3 default dimension is 1024)
+    # Options for embedding_provider: "huggingface" (local BGE-M3) or "nvidia" (OpenAI-compatible endpoint)
+    embedding_provider: str = os.getenv("EMBEDDING_PROVIDER", "huggingface")
+    embedding_model: str = os.getenv("EMBEDDING_MODEL", "BAAI/bge-m3")
+    embedding_dimension: int = int(os.getenv("EMBEDDING_DIMENSION", "1024"))
+    embedding_api_key: str = os.getenv("EMBEDDING_API_KEY") or os.getenv("NVIDIA_API_KEY") or os.getenv("OPENAI_API_KEY", "")
+    embedding_base_url: str = os.getenv("EMBEDDING_BASE_URL", "https://integrate.api.nvidia.com/v1")
 
     pinecone_api_key: str = os.getenv("PINECONE_API_KEY", "")
-    pinecone_index_name: str = os.getenv("PINECONE_INDEX_NAME", "cloudops-sentinel-openai-self-rag")
+    pinecone_index_name: str = os.getenv("PINECONE_INDEX_NAME", "cloudops-sentinel-bge-m3")
     pinecone_namespace: str = os.getenv("PINECONE_NAMESPACE", "incident-runbooks")
     pinecone_cloud: str = os.getenv("PINECONE_CLOUD", "aws")
     pinecone_region: str = os.getenv("PINECONE_REGION", "us-east-1")
@@ -31,7 +39,7 @@ class Settings(BaseModel):
     database_path: str = os.getenv("DATABASE_PATH", "data/audit.db")
 
     @property
-    def database_files(self) -> Path:
+    def database_file(self) -> Path:
         p = Path(self.database_path)
         return p if p.is_absolute() else ROOT / p
 
